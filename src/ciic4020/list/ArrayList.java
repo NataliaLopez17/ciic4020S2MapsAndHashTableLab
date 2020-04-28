@@ -7,13 +7,12 @@ public class ArrayList<E> implements List<E> {
 
 	// private fields
 	private E elements[];
-	
+
 	private int currentSize;
-	
-	
+
 	private class ListIterator implements Iterator<E> {
 		private int currentPosition;
-		
+
 		public ListIterator() {
 			this.currentPosition = 0;
 		}
@@ -27,13 +26,11 @@ public class ArrayList<E> implements List<E> {
 		public E next() {
 			if (this.hasNext()) {
 				return (E) elements[this.currentPosition++];
-			}
-			else
+			} else
 				throw new NoSuchElementException();
 		}
 	}
 
-	
 	@SuppressWarnings("unchecked")
 	public ArrayList(int initialCapacity) {
 		if (initialCapacity < 1)
@@ -50,17 +47,19 @@ public class ArrayList<E> implements List<E> {
 			if (this.size() == this.elements.length)
 				reAllocate();
 			this.elements[this.currentSize++] = obj;
-		}		
+		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private void reAllocate() {
 		/* create a new array with twice the size */
-		E newElements[] = (E[]) new Object[2*this.elements.length];
+		E newElements[] = (E[]) new Object[2 * this.elements.length];
 		for (int i = 0; i < this.size(); i++)
 			newElements[i] = this.elements[i];
-		/* replace old elements with newElements
-		 * We could call elements.clear() first, but let the GC handle that */
+		/*
+		 * replace old elements with newElements We could call elements.clear() first,
+		 * but let the GC handle that
+		 */
 		this.elements = newElements;
 	}
 
@@ -80,8 +79,7 @@ public class ArrayList<E> implements List<E> {
 				// add element at position index
 				this.elements[index] = obj;
 				this.currentSize++;
-			}
-			else
+			} else
 				throw new ArrayIndexOutOfBoundsException();
 		}
 	}
@@ -106,8 +104,7 @@ public class ArrayList<E> implements List<E> {
 				this.elements[i] = this.elements[i + 1];
 			this.elements[--this.currentSize] = null;
 			return true;
-		}
-		else
+		} else
 			return false;
 	}
 
@@ -135,8 +132,7 @@ public class ArrayList<E> implements List<E> {
 			E temp = this.elements[index];
 			this.elements[index] = obj;
 			return temp;
-		}
-		else
+		} else
 			throw new ArrayIndexOutOfBoundsException();
 	}
 

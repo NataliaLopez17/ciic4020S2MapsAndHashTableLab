@@ -2,13 +2,15 @@ package ciic4020.hashtable;
 
 import java.io.PrintStream;
 
-import ciic4020.list.*;
+import ciic4020.list.LinkedList;
+import ciic4020.list.List;
 import ciic4020.map.Map;
 
 public class HashTableSC<K, V> implements Map<K, V> {
 
 	/**
 	 * The values in the linked lists within our buckets will be of this type.
+	 * 
 	 * @author Juan O. Lopez
 	 */
 	private static class BucketNode<K, V> {
@@ -28,15 +30,14 @@ public class HashTableSC<K, V> implements Map<K, V> {
 			return value;
 		}
 	}
-	
-	
+
 	// private fields
 	private int currentSize;
 	private List<BucketNode<K, V>>[] buckets;
 	private HashFunction<K> hashFunction;
 
-	
-	@SuppressWarnings("unchecked")
+	private final static double loadFactor = 0.75;
+
 	public HashTableSC(int initialCapacity, HashFunction<K> hashFunction) {
 		if (initialCapacity < 1)
 			throw new IllegalArgumentException("Capacity must be at least 1");
@@ -45,7 +46,7 @@ public class HashTableSC<K, V> implements Map<K, V> {
 
 		currentSize = 0;
 		this.hashFunction = hashFunction;
-		buckets = new ArrayList[initialCapacity];
+		buckets = new LinkedList[initialCapacity];
 		for (int i = 0; i < initialCapacity; i++)
 			buckets[i] = new LinkedList<BucketNode<K, V>>();
 	}
@@ -57,7 +58,10 @@ public class HashTableSC<K, V> implements Map<K, V> {
 
 		/* First we determine the bucket corresponding to this key */
 		int targetBucket = hashFunction.hashCode(key) % buckets.length;
-		/* Within that bucket there is a linked list, since we're using Separate Chaining */
+		/*
+		 * Within that bucket there is a linked list, since we're using Separate
+		 * Chaining
+		 */
 		List<BucketNode<K, V>> L = buckets[targetBucket];
 		/* Look for the key within the nodes of that linked list */
 		for (BucketNode<K, V> BN : L) {
@@ -73,16 +77,25 @@ public class HashTableSC<K, V> implements Map<K, V> {
 		if (key == null || value == null)
 			throw new IllegalArgumentException("Parameter cannot be null.");
 
-		/* Can't have two elements with same key,
-		 * so remove existing element with the given key (if any) */
+		/*
+		 * Can't have two elements with same key, so remove existing element with the
+		 * given key (if any)
+		 */
 		remove(key);
 		/* Determine the bucket corresponding to this key */
 		int targetBucket = hashFunction.hashCode(key) % buckets.length;
-		/* Within that bucket there is a linked list, since we're using Separate Chaining */
+		/*
+		 * Within that bucket there is a linked list, since we're using Separate
+		 * Chaining
+		 */
 		List<BucketNode<K, V>> L = buckets[targetBucket];
 		/* Finally, add the key/value to the linked list */
 		L.add(0, new BucketNode<K, V>(key, value));
 		currentSize++;
+
+		if (targetBucket == this.buckets.hashCode()) {
+			rehash();
+		}
 	}
 
 	@Override
@@ -92,7 +105,10 @@ public class HashTableSC<K, V> implements Map<K, V> {
 
 		/* First we determine the bucket corresponding to this key */
 		int targetBucket = hashFunction.hashCode(key) % buckets.length;
-		/* Within that bucket there is a linked list, since we're using Separate Chaining */
+		/*
+		 * Within that bucket there is a linked list, since we're using Separate
+		 * Chaining
+		 */
 		List<BucketNode<K, V>> L = buckets[targetBucket];
 		/* Iterate over linked list trying to find this the key */
 		int pos = 0;
@@ -101,8 +117,7 @@ public class HashTableSC<K, V> implements Map<K, V> {
 				L.remove(pos);
 				currentSize--;
 				return BN.getValue();
-			}
-			else
+			} else
 				pos++;
 		}
 		return null;
@@ -115,7 +130,7 @@ public class HashTableSC<K, V> implements Map<K, V> {
 
 	@Override
 	public List<K> getKeys() {
-		List<K> result = new ArrayList<K>(size());
+		List<K> result = new LinkedList<K>();
 		/* For each bucket in the hash table, get the keys in that linked list */
 		for (int i = 0; i < buckets.length; i++)
 			for (BucketNode<K, V> BN : buckets[i])
@@ -125,7 +140,7 @@ public class HashTableSC<K, V> implements Map<K, V> {
 
 	@Override
 	public List<V> getValues() {
-		List<V> result = new ArrayList<V>(size());
+		List<V> result = new LinkedList<V>();
 		/* For each bucket in the hash table, get the values in that linked list */
 		for (int i = 0; i < buckets.length; i++)
 			for (BucketNode<K, V> BN : buckets[i])
@@ -156,6 +171,23 @@ public class HashTableSC<K, V> implements Map<K, V> {
 		for (int i = 0; i < buckets.length; i++)
 			for (BucketNode<K, V> BN : buckets[i])
 				out.printf("(%s, %s)\n", BN.getKey(), BN.getValue());
+	}
+
+	@SuppressWarnings("unchecked")
+	private void rehash() {
+		List<BucketNode<K, V>>[] old = buckets;
+		List<BucketNode<K, V>>[] neue = new LinkedList[this.size() * 2];
+		buckets = neue;
+
+		for (int i = 0; i < buckets.length; i++) {
+			buckets[i] = new LinkedList<BucketNode<K, V>>();
+		}
+		for (List<BucketNode<K, V>> l : old) {
+			for (BucketNode<K, V> BN : l) {
+				put(BN.key, BN.value);
+			}
+		}
+
 	}
 
 }
