@@ -74,9 +74,13 @@ public class HashTableSC<K, V> implements Map<K, V> {
 
 	@Override
 	public void put(K key, V value) {
-		if (key == null || value == null)
+		if (key == null || value == null) {
 			throw new IllegalArgumentException("Parameter cannot be null.");
+		}
 
+		if (loadFactor < (this.currentSize / this.buckets.length)) {
+			rehash();
+		}
 		/*
 		 * Can't have two elements with same key, so remove existing element with the
 		 * given key (if any)
@@ -92,10 +96,6 @@ public class HashTableSC<K, V> implements Map<K, V> {
 		/* Finally, add the key/value to the linked list */
 		L.add(0, new BucketNode<K, V>(key, value));
 		currentSize++;
-
-		if (targetBucket == this.buckets.hashCode()) {
-			rehash();
-		}
 	}
 
 	@Override
@@ -184,8 +184,11 @@ public class HashTableSC<K, V> implements Map<K, V> {
 		}
 		for (List<BucketNode<K, V>> l : old) {
 			for (BucketNode<K, V> BN : l) {
-				put(BN.key, BN.value);
+				int targetBucket = hashFunction.hashCode(BN.getKey()) % buckets.length;
+				List<BucketNode<K, V>> L = buckets[targetBucket];
+				L.add(0, new BucketNode<K, V>(BN.getKey(), BN.getValue()));
 			}
+
 		}
 
 	}

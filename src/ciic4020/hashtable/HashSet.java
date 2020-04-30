@@ -22,6 +22,7 @@ public class HashSet<E> implements Set<E> {
 			return false;
 		}
 		this.hashtable.put(obj, new Object());
+		System.out.println("added: " + obj);
 		return true;
 	}
 

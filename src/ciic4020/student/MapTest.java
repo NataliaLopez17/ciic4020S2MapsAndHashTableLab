@@ -1,7 +1,7 @@
 package ciic4020.student;
 
 import ciic4020.hashtable.HashTableFactory;
-//import ciic4020.hashtable.HashTableOAFactory;
+import ciic4020.hashtable.HashTableOAFactory;
 import ciic4020.hashtable.HashTableSCFactory;
 import ciic4020.list.List;
 import ciic4020.map.Map;
@@ -10,8 +10,7 @@ public class MapTest {
 
 	public static void main(String[] args) {
 		HashTableFactory<String, Student> factory = new HashTableSCFactory<String, Student>();
-		// HashTableFactory<String, Student> factory = new
-		// HashTableOAFactory<String,Student>();
+		HashTableFactory<String, Student> factory2 = new HashTableOAFactory<String, Student>();
 		Map<String, Student> map = factory.getInstance(2);
 
 		Student s1 = new Student("123", "Apu", "Smith", 18, 4.0, "NY");
